@@ -36,42 +36,45 @@ public class SpitterController {
         return "registerForm";
     }
 
+    @RequestMapping(value = "/register", method = POST)
+    public String processRegistration(
+            @RequestPart(value = "profilePicture", required = false) MultipartFile file,
+            RedirectAttributes redirectAttributes,
+            @Valid Spitter spitter,
+            Errors errors) throws IOException {
+        if (errors.hasErrors()) {
+            return "registerForm";
+        }
+
+        if (file != null)
+            try {
+                file.transferTo(new File("c:/tmp/spittr/uploads/" + spitter.getUsername() + ".jpg"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        spitterRepository.save(spitter);
+        redirectAttributes.addAttribute("username", spitter.getUsername());
+        redirectAttributes.addFlashAttribute(spitter);
+        return "redirect:/spitter/" + spitter.getUsername();
+    }
+
 //    @RequestMapping(value = "/register", method = POST)
 //    public String processRegistration(
-//            @RequestPart(value = "profilePicture", required = false) MultipartFile file,
-//            RedirectAttributes redirectAttributes,
-//            @Valid Spitter spitter,
-//            Errors errors) throws IOException {
+//            @Valid SpitterForm spitterForm,
+//            Errors errors) throws IllegalStateException, IOException {
+//
 //        if (errors.hasErrors()) {
 //            return "registerForm";
 //        }
-//
-//        try {
-//            file.transferTo(new File("c:/tmp/spittr/uploads/" + spitter.getUsername() + ".jpg"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
+//        Spitter spitter = spitterForm.toSpitter();
 //        spitterRepository.save(spitter);
-//        redirectAttributes.addAttribute("username", spitter.getUsername());
-//        redirectAttributes.addFlashAttribute(spitter);
+//        MultipartFile profilePicture = spitterForm.getProfilePicture();
+//        if (profilePicture != null) {
+//            profilePicture.transferTo(new File("c:/tmp/spittr/uploads/" + spitter.getUsername() + ".jpg"));
+//        }
 //        return "redirect:/spitter/" + spitter.getUsername();
 //    }
-
-  @RequestMapping(value="/register", method=POST)
-  public String processRegistration(
-      @Valid SpitterForm spitterForm,
-      Errors errors) throws IllegalStateException, IOException {
-
-    if (errors.hasErrors()) {
-      return "registerForm";
-    }
-    Spitter spitter = spitterForm.toSpitter();
-    spitterRepository.save(spitter);
-    MultipartFile profilePicture = spitterForm.getProfilePicture();
-    profilePicture.transferTo(new File("c:/tmp/spittr/" + spitter.getUsername() + ".jpg"));
-    return "redirect:/spitter/" + spitter.getUsername();
-  }
 
     @RequestMapping(value = "/{username}", method = GET)
     public String showSpitterProfile(
