@@ -13,11 +13,8 @@ return "error/duplicate";
 ## 为控制器添加通知
 `@ControllerAdvice
 public class AppWideExceptionHandler {
-
 @ExceptionHandler(DuplicateSpittleException.class)
 public String handleNotFound() {
 return "error/duplicate";
-}
-
 }`
 ## 跨重定向请求传递数据
